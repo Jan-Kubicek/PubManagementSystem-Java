@@ -3,6 +3,11 @@ package org.example;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
+
+import static org.example.KolekceNabidka.*;
+import static org.example.KolekceZamestnancu.*;
+import static org.example.KolekceStolu.*;
 
 public class MainFrame extends JFrame {
     //Komponenty
@@ -38,13 +43,17 @@ public class MainFrame extends JFrame {
             pnlRows = new JPanel(new GridLayout(4,2));
                 lblVyberPiti = new JLabel("Vyber pití:"); pnlRows.add(lblVyberPiti);
                 Choice piti = new Choice();
-                //TODO doplnit piti
+                    for (Napoj napoj : kolekceNapoju) {
+                        piti.add(napoj.getNazev()); //přidání možností do výběru => Pití
+                    }
                 pnlRows.add(piti);
                 lblKsPiti = new JLabel("Počet nápojů"); pnlRows.add(lblKsPiti);
                 tfKsPiti = new JTextField(); pnlRows.add(tfKsPiti);
                 lblVyberJidlo = new JLabel("Vyber jídlo:"); pnlRows.add(lblVyberJidlo);
                 Choice jidlo = new Choice();
-                //TODO dopln jidlo
+                    for (Jidlo jidloO : kolekceJidel){
+                        jidlo.add(jidloO.getNazev()); //přidání možností do výběru => Jídlo
+                    }
                 pnlRows.add(jidlo);
                 lblPorciJidla = new JLabel("Porcí jídla"); pnlRows.add(lblPorciJidla);
                 tfKsJidla = new JTextField(); pnlRows.add(tfKsJidla);
@@ -93,6 +102,50 @@ public class MainFrame extends JFrame {
     }
     //Main
     public static void main(String[] args){
+        nabidka(); // Vytvoření nabídky
+        zamestnanci(); //Vytvoření seznamu zaměstnanců
+        stoly(); //Vytvoření seznamu stolů
         new MainFrame().setVisible(true);
     }
+
+    public static void nabidka(){
+        //Napoje
+        Napoj svijany1005 = new Napoj("Svijany 10 0.5l",45); pridejNapoj(svijany1005);
+        Napoj svijany1003 = new Napoj("Svijany 10 0.3l",35); pridejNapoj(svijany1003);
+        Napoj svijany1105 = new Napoj("Svijany 11 0.5l", 50); pridejNapoj(svijany1105);
+        Napoj svijany1103 = new Napoj("Svijany 11 0.3l",40); pridejNapoj(svijany1103);
+        Napoj birelPomeloGrep05 = new Napoj("Birell Pomelo-Grep 0.5l", 35); pridejNapoj(birelPomeloGrep05);
+        Napoj birelPomeloGrep03 = new Napoj("Birell Pomelo-Grep 0.3l",30); pridejNapoj(birelPomeloGrep03);
+        Napoj kofola05 = new Napoj("Kofola 0.5l", 45); pridejNapoj(kofola05);
+        Napoj kofola03 = new Napoj("Kofola 0.3l",40); pridejNapoj(kofola03);
+        //Jidlo
+        Jidlo hranolkyVelke = new Jidlo("Hranolky Velké",65); pridejJidlo(hranolkyVelke);
+        Jidlo hranolkyMale = new Jidlo("Hranolky Malé", 50); pridejJidlo(hranolkyMale);
+        Jidlo gulasovaPolevka = new Jidlo("Gulášová polévka",67); pridejJidlo(gulasovaPolevka);
+        Jidlo segedinskyGulas = new Jidlo("Segedínský Guláš",95); pridejJidlo(segedinskyGulas);
+        Jidlo svickova = new Jidlo("Svíčková",105); pridejJidlo(svickova);
+        Jidlo houskovyKnedlik = new Jidlo("Houskový knedlík", 40); pridejJidlo(houskovyKnedlik);
+        Jidlo rohlik = new Jidlo("Rohlík",5); pridejJidlo(rohlik);
+        }
+    public static void zamestnanci(){ // iniciály z random generatoru
+        Zamestnanec janKoudelka = new Zamestnanec("Jan","Koudelka","janKoudelka01"); pridejZamestnance(janKoudelka);
+        Zamestnanec jiriPenc = new Zamestnanec("Jiří","Penc","jiriPenc02"); pridejZamestnance(jiriPenc);
+        Zamestnanec martinaZitkova = new Zamestnanec("Martina","Zítková","martinaZitkova03"); pridejZamestnance(martinaZitkova);
+        Zamestnanec pavelNovotny = new Zamestnanec("Pavel","Novotný","pavelNovotny04"); pridejZamestnance(pavelNovotny);
+        Zamestnanec janaNovakova = new Zamestnanec("Jana","Nováková","janaNovakova05"); pridejZamestnance(janaNovakova);
+    }
+
+    public static void stoly(){
+        Stul terasa01 = new Stul("Terasa 01",5); pridejStul(terasa01);
+        Stul terasa02 = new Stul("Terasa 02",4); pridejStul(terasa02);
+        Stul terasa03 = new Stul("Terasa 03",4); pridejStul(terasa03);
+        Stul terasa04 = new Stul("Terasa 04",4); pridejStul(terasa04);
+        Stul vnitrni01 = new Stul("Vnitřní 01",6); pridejStul(vnitrni01);
+        Stul vnitrni02 = new Stul("Vnitřní 02",4); pridejStul(vnitrni02);
+        Stul vnitrni03 = new Stul("Vnitřní 03",4); pridejStul(vnitrni03);
+        Stul vnitrni04 = new Stul("Vnitřní 04",4); pridejStul(vnitrni04);
+        Stul vnitrni05 = new Stul("Vnitřní 05",2); pridejStul(vnitrni05);
+    }
+
+
 }
