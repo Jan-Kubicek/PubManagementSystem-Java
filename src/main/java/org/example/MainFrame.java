@@ -3,7 +3,6 @@ package org.example;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
 
 import static org.example.KolekceNabidka.*;
 import static org.example.KolekceZamestnancu.*;
@@ -12,7 +11,7 @@ import static org.example.KolekceStolu.*;
 public class MainFrame extends JFrame {
     //Komponenty
     JButton btnPridejDoUctu, btnVytvorUctenku, btnZaplat, btnPrihlas;
-    JTextField tfStulId, tfKsJidla, tfKsPiti, tfIdKarty, tfJmeno, tfPrijmeni, tfCisloZamestnance;
+    JTextField tfKsJidla, tfKsPiti, tfIdKarty, tfJmeno, tfPrijmeni, tfCisloZamestnance;
     JPanel pnlNorth, pnlCenter, pnlWest, pnlEast, pnlSouth, pnlRow1, pnlRow2,  pnlRows;
     JTable table;
     JLabel lblStul, lblVyberPiti, lblKsPiti, lblVyberJidlo, lblPorciJidla, lblVyberMenu, lblSouth;
@@ -31,14 +30,35 @@ public class MainFrame extends JFrame {
             tfCisloZamestnance = new JTextField("Zaměstnanecké Číslo"); pnlNorth.add(tfCisloZamestnance);
             btnPrihlas = new JButton("Přihlášení"); pnlNorth.add(btnPrihlas);
             btnPrihlas.addActionListener(e -> {
-                //TODO
+                String jmeno = tfJmeno.getText();
+                String prijmeni = tfPrijmeni.getText();
+                String cislo = tfCisloZamestnance.getText();
+                for(Zamestnanec zamestnanec : seznamZamestnancu){
+                    if(zamestnanec.getJmeno().equals(jmeno)){
+                        if(zamestnanec.getPrijmeni().equals(prijmeni)){
+                            if(zamestnanec.getCisloZamestnance().equals(cislo)){
+                                JOptionPane.showMessageDialog(this,"Zaměstnanec byl úspěšně přihlášen","CORRECT",JOptionPane.INFORMATION_MESSAGE);
+                            }
+                            else{ JOptionPane.showMessageDialog(this,"Nedošlo k přihlášení","ERROR",JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                        else{ JOptionPane.showMessageDialog(this,"Nedošlo k přihlášení","ERROR",JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                    else{ JOptionPane.showMessageDialog(this,"Nedošlo k přihlášení","ERROR",JOptionPane.ERROR_MESSAGE);
+                    }
+                    break;
+                }
             });
         add(pnlNorth,BorderLayout.NORTH);
 
         pnlWest = new JPanel(new GridLayout(3,1));
             pnlRow1 = new JPanel(new GridLayout(1,2));
-                lblStul = new JLabel("Zadej ID stolu: "); pnlRow1.add(lblStul);
-                tfStulId = new JTextField(); pnlRow1.add(tfStulId);
+                lblStul = new JLabel("Vyber stůl:"); pnlRow1.add(lblStul);
+                Choice stoly = new Choice();
+                for(Stul stulO : seznamStoluPodniku){
+                    stoly.add(stulO.nazev);
+                }pnlRow1.add(stoly);
             pnlWest.add(pnlRow1);
             pnlRows = new JPanel(new GridLayout(4,2));
                 lblVyberPiti = new JLabel("Vyber pití:"); pnlRows.add(lblVyberPiti);
@@ -73,7 +93,41 @@ public class MainFrame extends JFrame {
             table = new JTable(model);
             pnlCenter.add(new JScrollPane(table));
             btnPridejDoUctu.addActionListener(e -> {
-                //TODO
+                //Validace
+                boolean add = false;
+                String stul = stoly.getSelectedItem();
+                int napoju =  Integer.parseInt(tfKsPiti.getText());
+                int porci = Integer.parseInt(tfKsJidla.getText());
+                for ( Stul stulO : seznamStoluPodniku){
+                    if(stulO.getNazev().equals(stul)){
+                        if(napoju >= 0){
+                            if(porci >= 0){
+                                add = true;
+                            }
+                        }
+                    }
+                }
+                double cena = 0;
+                if(add){
+                    String nazevZvolenehoPiti = piti.getSelectedItem();
+                    int indexNapoje = -1;
+                    int indexPorce = -1;
+                    for(Napoj napoj : kolekceNapoju){
+                        if(napoj.getNazev().equals(nazevZvolenehoPiti)) {
+                            cena += napoj.getCenaKC() * napoju;             //Cena za nápoje
+                            indexNapoje = kolekceNapoju.indexOf(napoj);
+                        }
+                    }
+                    String nazevZolenehoJidla = jidlo.getSelectedItem();
+                    for(Jidlo jidl01 : kolekceJidel){
+                        if(jidl01.getNazev().equals(nazevZolenehoJidla)){
+                            cena += jidl01.getCenaKC() * porci;             //Cena za porce
+                            indexPorce = kolekceJidel.indexOf(jidl01);
+                        }
+                    }
+                    int indexObjednavky = table.getRowCount(); indexObjednavky++;
+                    model.addRow(new Object[]{indexObjednavky,stul,kolekceNapoju.get(indexNapoje).getNazev(),napoju,kolekceJidel.get(indexPorce).getNazev(),porci,cena});
+                }
             });
         add(pnlCenter,BorderLayout.CENTER);
 
@@ -81,7 +135,7 @@ public class MainFrame extends JFrame {
             pnlRow2 = new JPanel(new GridLayout(1,2));
                 lblVyberMenu = new JLabel("Vyber měnu");pnlRow2.add(lblVyberMenu);
                 Choice mena = new Choice();
-                //TODO
+                mena.add("YEN"); mena.add("EUR"); mena.add("USD"); mena.add("PLN");
                 pnlRow2.add(mena);
             pnlEast.add(pnlRow2);
             btnVytvorUctenku = new JButton("Vytvoř Účtenku"); pnlEast.add(btnVytvorUctenku);
@@ -146,6 +200,4 @@ public class MainFrame extends JFrame {
         Stul vnitrni04 = new Stul("Vnitřní 04",4); pridejStul(vnitrni04);
         Stul vnitrni05 = new Stul("Vnitřní 05",2); pridejStul(vnitrni05);
     }
-
-
 }
