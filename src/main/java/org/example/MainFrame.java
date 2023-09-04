@@ -3,6 +3,9 @@ package org.example;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import static org.example.KolekceNabidka.*;
 import static org.example.KolekceZamestnancu.*;
@@ -135,17 +138,85 @@ public class MainFrame extends JFrame {
             pnlRow2 = new JPanel(new GridLayout(1,2));
                 lblVyberMenu = new JLabel("Vyber měnu");pnlRow2.add(lblVyberMenu);
                 Choice mena = new Choice();
-                mena.add("YEN"); mena.add("EUR"); mena.add("USD"); mena.add("PLN");
+                mena.add("YEN"); mena.add("EUR"); mena.add("USD"); mena.add("PLN"); mena.add("CZK");
                 pnlRow2.add(mena);
             pnlEast.add(pnlRow2);
             btnVytvorUctenku = new JButton("Vytvoř Účtenku"); pnlEast.add(btnVytvorUctenku);
             btnVytvorUctenku.addActionListener(e -> {
-                //TODO
+                String sJmeno = tfJmeno.getText();
+                String sPrijmeni = tfPrijmeni.getText();
+                int indexofRow = table.getSelectedRow();
+                double cena = 0;
+                String selectedMena = mena.getSelectedItem();
+                ArrayList<String> arrayNapoje = new ArrayList<>();
+                ArrayList<String> arrayPorce = new ArrayList<>();
+                String idStolu = table.getValueAt(indexofRow,1).toString();
+                for(int row = 0; row < table.getRowCount(); row++){
+                    if(idStolu.equals(table.getValueAt(row,1))){
+                        String sPiti = table.getValueAt(row,2).toString()+" Ks: "+table.getValueAt(row,3).toString();
+                        arrayNapoje.add(sPiti);
+                        String sPorce = table.getValueAt(row,4).toString()+" Porcí: "+table.getValueAt(row,5).toString();
+                        arrayPorce.add(sPorce);
+                        cena += Double.parseDouble(table.getValueAt(row,6).toString());
+                    }
+                }
+                if( selectedMena.equals("YEN")) cena *= 6.55;
+                if(selectedMena.equals("EUR")) cena *= 0.041;
+                if(selectedMena.equals("USD")) cena *= 0.045;
+                if(selectedMena.equals("PLN")) cena *= 0.19;
+                JOptionPane.showMessageDialog(this,"Účtenka\nDnes vás obsluhoval/a: "+sJmeno+" "+sPrijmeni+"\n"+
+                        "Celková částka na uhrazení je : "+ cena + " " + selectedMena
+                );
+                try{
+                    PrintWriter vystup = new PrintWriter("Uctenka.txt");
+                    vystup.println("Účtenka");
+                    vystup.println("Dne: "+ LocalDateTime.now());
+                    vystup.println("Obsluha: "+sJmeno + " "+ sPrijmeni);
+                    for(String napoj : arrayNapoje){
+                        vystup.println(napoj);
+                    }
+                    for(String porce : arrayPorce){
+                        vystup.println(porce);
+                    }
+                    vystup.println("Celková cena byla :"+cena+ " v " + selectedMena);
+                    vystup.close();
+                }catch (Exception a){
+                    a.printStackTrace();
+                }
             });
             tfIdKarty = new JTextField("Karta"); pnlEast.add(tfIdKarty);
             btnZaplat = new JButton("Zaplat"); pnlEast.add(btnZaplat);
             btnZaplat.addActionListener(e -> {
-                //TODO
+                //validace karty => vybrání měny => vypsání na tfZaplaceno částku a podklad
+                String cisloKarty = tfIdKarty.getText();
+                if(cisloKarty.length() == 12){
+                    tfIdKarty.setBackground(new Color(0,255,0));
+                    int indexofRow = table.getSelectedRow();
+                    double cena = 0;
+                    String selectedMena = mena.getSelectedItem();
+                    String idStolu = table.getValueAt(indexofRow,1).toString();
+                    for(int row = 0; row < table.getRowCount(); row++){
+                        if(idStolu.equals(table.getValueAt(row,1))){
+                            cena += Double.parseDouble(table.getValueAt(row,6).toString());
+                        }
+                    }
+                    if( selectedMena.equals("YEN")) cena *= 6.55;
+                    if(selectedMena.equals("EUR")) cena *= 0.041;
+                    if(selectedMena.equals("USD")) cena *= 0.045;
+                    if(selectedMena.equals("PLN")) cena *= 0.19;
+                    tfIdKarty.setText(String.valueOf(cena));
+                    for(int i = 0; i < 4; i++) {
+                        for (int row = 0; row < table.getRowCount(); row++) {
+                            if (idStolu.equals(table.getValueAt(row, 1).toString())){
+                                model.removeRow(row);
+                            }
+                        }
+                    }
+                }
+                else{
+                    JOptionPane.showMessageDialog(this,"Bylo zadáno neplatné číslo karty","ERROR",JOptionPane.ERROR_MESSAGE);
+                    tfIdKarty.setBackground(new Color(255,0,0));
+                }
             });
         add(pnlEast,BorderLayout.EAST);
 
